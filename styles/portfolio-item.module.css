@@ -6,7 +6,10 @@
     margin-bottom: 30px;
     overflow: hidden;
   }
-  
+  .portfolio__image{
+    max-width: 100%;
+    height: auto;
+  }
   .portfolio__item h6 {
     color: #01d293;
     margin-bottom: 20px;
