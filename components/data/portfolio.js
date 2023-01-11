@@ -57,7 +57,7 @@ const portfolio = [
     title: "AgroBiz Website",
     img: "/images/Agriculture.jpg",
     category: "Web Design",
-    keyword: ["HTML", "Web design", "UI-UX", 'CSS','Coding Instructor'],
+    keyword: ["HTML", "Web design", 'CSS','Coding Instructor'],
     liveUrl: "https://agro-biz.netlify.app/",
   },
 
@@ -66,7 +66,7 @@ const portfolio = [
     title: "Waste disposal Website",
     img: "/images/waste.jpg",
     category: "Web Design",
-    keyword: ["HTML", "Web design", "UI-UX", 'CSS','Coding Instructor'],
+    keyword: ["HTML", "Web design", 'CSS','Coding Instructor'],
     liveUrl: "https://clean-4-all.netlify.app/",
   },
 
@@ -75,7 +75,7 @@ const portfolio = [
     title: "School Fundraising Website",
     img: "/images/poorkid.jpg",
     category: "Web Design",
-    keyword: ["HTML", "Web design", "UI-UX", 'CSS','Coding Instructor'],
+    keyword: ["HTML", "Web design", 'CSS','Coding Instructor'],
     liveUrl: "https://school-4-all.netlify.app/",
   },
   {
@@ -83,7 +83,7 @@ const portfolio = [
     title: "Automobile fix website",
     img: "/images/car.jpg",
     category: "Web Design",
-    keyword: ["HTML", "Web design", "UI-UX", 'CSS','Coding Instructor'],
+    keyword: ["HTML", "Web design", 'CSS','Coding Instructor'],
     liveUrl: "https://automobile-fix-grp3.netlify.app/",
   },
 ];

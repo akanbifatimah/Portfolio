@@ -81,15 +81,15 @@ const About = () => {
             </div>
           </Col>
 
-          <Col lg="6">
-          <Col lg="6" md="6">
-            <div className={`${styles.hero__img} text-center `}>
-              <Image alt="hero-image" src={web} width="650" height="550" />
+          
+          <Col lg="6" md="6" className="ml-5">
+            <div className={`${styles.hero__img} text-end `}>
+              <Image className="img-fluid" alt="hero-image" src={web} width="650" height="550" />
             </div>
           </Col>
 
             
-          </Col>
+          
         </Row>
       </Container>
     </section>

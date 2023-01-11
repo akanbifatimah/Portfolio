@@ -5,7 +5,7 @@ body {
   margin: 0;
   font-family: "Quicksand", sans-serif;
   scroll-behavior: smooth;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 a {
