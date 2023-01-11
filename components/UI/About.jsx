@@ -83,8 +83,8 @@ const About = () => {
 
           <Col lg="6">
           <Col lg="6" md="6">
-            <div className={`${styles.hero__img} text-center `}>
-              <Image alt="hero-image" src={web} width="650" height="550" />
+            <div className={`${classes.hero__img} text-center `}>
+              <Image className={`${classes.portfolio__image}`} alt="hero-image" src={web} width="650" height="550" />
             </div>
           </Col>
 
