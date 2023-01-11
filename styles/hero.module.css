@@ -5,10 +5,7 @@
     color: #808dad;
     font-weight: 400;
   }
-  .portfolio__image{
-    max-width: 100%;
   
-  }
   .hero__content {
     padding-top: 50px;
   }
@@ -16,7 +13,6 @@
   .hero__img {
     position: relative;
     z-index: 9;
-    width: 650px;
   }
   
   .hero__img img {
