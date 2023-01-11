@@ -4,6 +4,7 @@
     padding-top: 30px;
     border-radius: 10px;
     margin-bottom: 30px;
+    overflow: hidden;
   }
   
   .portfolio__item h6 {
