@@ -9,6 +9,7 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <Head>
+      <title>Fatimah Akanbi</title>
         <link
           rel="apple-touch-icon"
           sizes="180x180"
