@@ -5,7 +5,7 @@ import About from "../components/UI/About";
 import Portfolio from "../components/UI/Portfolio";
 import Testimonial from "../components/UI/Testimonial";
 import Contact from "../components/UI/Contact";
-
+import { Head } from "next/document";
 export default function Home() {
   <Head>
   <title>Fatimah Akanbi</title>
