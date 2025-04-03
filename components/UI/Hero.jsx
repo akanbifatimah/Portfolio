@@ -20,17 +20,18 @@ const Hero = () => {
               <p>
                 I have an eye for design, creativity, and crafting smooth user
                 Experience. Skilled in solving Technical problems using
-                technologies such as NextJs, React, Javascript, ChakraUI,
-                Bootstrap, TailwindCSS, HTML and CSS Javascript, React,
-                bootstrap, SQL, Node js and ExpressJS.
+                technologies such as Typescript, NextJs, React, Javascript,
+                ChakraUI, materia UI, TailwindCSS, HTML and CSS Javascript,
+                React, and NestJS.
                 <br /> <br /> Focused on being a valuable part of any team I am
                 on and believe in the team rising together. I am always willing
                 to help whenever any member of the team needs assistance. I
                 enjoy building everything from small business sites to big
                 interactive web apps.
-                <br /> <br /> I enjoy mentoring biginners in tech and guiding them
-                on the best approach to a succesful career journey. I run a
-                youtube channel where I teach different topics in web development and simplify the process for biginners.
+                <br /> <br /> I enjoy mentoring biginners in tech and guiding
+                them on the best approach to a succesful career journey. I run a
+                youtube channel where I teach different topics in web
+                development and simplify the process for biginners.
               </p>
               <div className="mt-5">
                 <button className="primary__btn">
@@ -44,7 +45,7 @@ const Hero = () => {
 
                 <button className="secondary__btn">
                   <Link
-                    href="https://drive.google.com/file/d/1if-2PqEUt8r9vACf9mub-WVm9KYMg2ty/view?usp=sharing"
+                    href="https://drive.google.com/file/d/19WcYAUQfvHIUTOpf8hqcSDXhxQ0_LwCt/view?usp=sharing"
                     target="_blank"
                   >
                     Download CV
@@ -57,7 +58,13 @@ const Hero = () => {
           {/* ========== hero img ============= */}
           <Col lg="6" md="6">
             <div className={`${classes.hero__img} text-end`}>
-              <Image  className="img-fluid" alt="hero-image" src={heroImg} width="550" height="650" />
+              <Image
+                className="img-fluid"
+                alt="hero-image"
+                src={heroImg}
+                width="550"
+                height="650"
+              />
             </div>
           </Col>
         </Row>
