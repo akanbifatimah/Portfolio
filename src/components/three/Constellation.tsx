@@ -181,20 +181,90 @@ function buildGeometry(count: number) {
   return geo;
 }
 
+type Tier = "none" | "low" | "high";
+
+/**
+ * Rough GPU check so weak machines get a lighter scene. Integrated and mobile
+ * GPUs get "low"; software renderers and missing WebGL get "none" (the CSS
+ * glow behind the canvas is then the whole background).
+ */
+function detectTier(): Tier {
+  try {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+    if (!gl) return "none";
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+
+    if (/swiftshader|llvmpipe|software|basic render/i.test(renderer)) return "none";
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    const weakDevice = (nav.deviceMemory ?? 8) <= 4 || (navigator.hardwareConcurrency ?? 8) <= 4;
+    const integrated = /intel|hd graphics|uhd graphics|iris|mali|adreno|powervr|apple gpu/i.test(renderer);
+    return weakDevice || integrated ? "low" : "high";
+  } catch {
+    return "none";
+  }
+}
+
+/**
+ * Renders on demand at a capped frame rate instead of every display refresh:
+ * full rate for a moment after the user scrolls or moves the pointer, a lower
+ * rate while idle, and nothing at all when the hero is off screen.
+ */
+function FrameDriver({
+  active,
+  activeFps,
+  idleFps,
+  lastInput,
+}: {
+  active: boolean;
+  activeFps: number;
+  idleFps: number;
+  lastInput: React.RefObject<number>;
+}) {
+  const invalidate = useThree((s) => s.invalidate);
+
+  useEffect(() => {
+    if (!active) return;
+    let id = 0;
+    let last = 0;
+    const loop = (t: number) => {
+      id = requestAnimationFrame(loop);
+      const busy = t - lastInput.current < 1500;
+      const fps = busy ? activeFps : idleFps;
+      if (fps <= 0) return;
+      // Small tolerance so a 60 fps cap on a 60 Hz screen doesn't drop to 30.
+      if (t - last >= 1000 / fps - 2) {
+        last = t;
+        invalidate();
+      }
+    };
+    id = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(id);
+  }, [active, activeFps, idleFps, invalidate, lastInput]);
+
+  return null;
+}
+
 function Particles({
   morph,
   count,
+  pointScale,
   animate,
   labelEls,
 }: {
   morph: MotionValue<number>;
   count: number;
+  pointScale: number;
   animate: boolean;
   labelEls: React.RefObject<(HTMLDivElement | null)[]>;
 }) {
   const material = useRef<THREE.ShaderMaterial>(null);
   const group = useRef<THREE.Group>(null);
   const pointer = useRef({ x: 0, y: 0 });
+  const labelsHidden = useRef(false);
+  const labelState = useRef<{ align: string; opacity: string; transform: string }[]>([]);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const { viewport, gl, camera, size } = useThree();
 
@@ -208,7 +278,7 @@ function Particles({
       uSpread: { value: 3 },
       uClusterR: { value: 0.9 },
       uVertical: { value: 0 },
-      uSize: { value: 42 },
+      uSize: { value: 42 * pointScale },
       uPixelRatio: { value: 1 },
     }),
     [],
@@ -257,29 +327,39 @@ function Particles({
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, -pointer.current.y * 0.15 * k, 2.5, dt);
 
     // Labels projected from 3D to screen space: under each cluster on desktop, beside it on mobile.
-    g.updateMatrixWorld();
+    // Skipped entirely while the labels are hidden, and each style is only
+    // written when it changes, so the browser isn't restyling every frame.
     const labelAlpha = THREE.MathUtils.smoothstep(m, 0.8, 1);
+    if (labelAlpha <= 0.001 && labelsHidden.current) return;
+    labelsHidden.current = labelAlpha <= 0.001;
+
+    g.updateMatrixWorld();
     const R = u.uClusterR.value;
     for (let i = 0; i < 3; i++) {
       const el = labelEls.current[i];
       if (!el) continue;
+      const prev = (labelState.current[i] ??= { align: "", opacity: "", transform: "" });
       let anchor = "translate(-50%, -50%)";
+      let align = "center";
       if (narrow) {
         const [x, y, z] = verticalCentres[i];
         const side = x < 0 ? 1 : -1;
         tmp.set(x + side * (R + 0.18), y, z);
         anchor = side > 0 ? "translate(0, -50%)" : "translate(-100%, -50%)";
-        el.style.textAlign = side > 0 ? "left" : "right";
+        align = side > 0 ? "left" : "right";
       } else {
         const [x, y, z] = horizontalCentres[i];
         tmp.set(x * spread, y * spread - R - 0.32, z * spread);
-        el.style.textAlign = "center";
       }
       tmp.applyMatrix4(g.matrixWorld).project(camera);
-      const sx = ((tmp.x + 1) / 2) * size.width;
-      const sy = ((1 - tmp.y) / 2) * size.height + (1 - labelAlpha) * 12;
-      el.style.opacity = String(labelAlpha);
-      el.style.transform = `translate3d(${sx}px, ${sy}px, 0) ${anchor}`;
+      const sx = Math.round(((tmp.x + 1) / 2) * size.width * 2) / 2;
+      const sy = Math.round((((1 - tmp.y) / 2) * size.height + (1 - labelAlpha) * 12) * 2) / 2;
+      const opacity = labelAlpha.toFixed(3);
+      const transform = `translate3d(${sx}px, ${sy}px, 0) ${anchor}`;
+
+      if (prev.align !== align) el.style.textAlign = prev.align = align;
+      if (prev.opacity !== opacity) el.style.opacity = prev.opacity = opacity;
+      if (prev.transform !== transform) el.style.transform = prev.transform = transform;
     }
   });
 
@@ -309,18 +389,55 @@ export default function Constellation({
   active: boolean;
   reducedMotion: boolean;
 }) {
-  const [count] = useState(() => (typeof window !== "undefined" && window.innerWidth < 768 ? 7000 : 16000));
+  // This component only loads on the client (`ssr: false`), so window is safe here.
+  const [tier] = useState(detectTier);
+  const [count] = useState(() => {
+    const narrow = window.innerWidth < 768;
+    if (tier === "low") return narrow ? 3500 : 6000;
+    return narrow ? 5000 : 9000;
+  });
   const labelEls = useRef<(HTMLDivElement | null)[]>([]);
+  const lastInput = useRef(0);
 
+  useEffect(() => {
+    const mark = () => {
+      lastInput.current = performance.now();
+    };
+    window.addEventListener("scroll", mark, { passive: true });
+    window.addEventListener("pointermove", mark, { passive: true });
+    window.addEventListener("resize", mark, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", mark);
+      window.removeEventListener("pointermove", mark);
+      window.removeEventListener("resize", mark);
+    };
+  }, []);
+
+  if (tier === "none") return null;
+
+  const low = tier === "low";
   return (
     <div className="absolute inset-0" aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
-        dpr={[1, 1.75]}
-        frameloop={active ? "always" : "never"}
-        gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+        dpr={low ? 1 : [1, 1.25]}
+        frameloop="demand"
+        gl={{ antialias: false, alpha: true, powerPreference: low ? "default" : "high-performance" }}
       >
-        <Particles morph={morph} count={count} animate={!reducedMotion} labelEls={labelEls} />
+        <FrameDriver
+          active={active}
+          activeFps={low ? 45 : 60}
+          // With reduced motion nothing moves on its own, so idle frames are wasted.
+          idleFps={reducedMotion ? 0 : low ? 24 : 30}
+          lastInput={lastInput}
+        />
+        <Particles
+          morph={morph}
+          count={count}
+          pointScale={low ? 1.2 : 1.1}
+          animate={!reducedMotion}
+          labelEls={labelEls}
+        />
       </Canvas>
       {clusters.map((c, i) => (
         <div

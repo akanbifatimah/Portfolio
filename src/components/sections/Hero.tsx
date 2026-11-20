@@ -31,8 +31,9 @@ export function Hero() {
       <div className="sticky top-0 h-svh overflow-hidden">
         {/* Soft colour fields behind the particles; also the fallback if WebGL is unavailable. */}
         <div aria-hidden className="absolute inset-0">
-          <div className="absolute top-1/2 right-[8%] size-140 -translate-y-1/2 rounded-full bg-violet/20 blur-[140px] max-md:top-1/4 max-md:right-1/2 max-md:size-90 max-md:translate-x-1/2" />
-          <div className="absolute right-[22%] bottom-[12%] size-80 rounded-full bg-coral/15 blur-[120px]" />
+          {/* Radial gradients instead of filter: blur(); they look the same and cost almost nothing to composite. */}
+          <div className="absolute top-1/2 right-[8%] size-280 translate-x-1/4 -translate-y-1/2 bg-[radial-gradient(closest-side,--theme(--color-violet/20%),--theme(--color-violet/12%)_35%,transparent)] max-md:top-1/4 max-md:right-1/2 max-md:size-180 max-md:translate-x-1/2" />
+          <div className="absolute right-[22%] bottom-[12%] size-170 translate-x-1/4 translate-y-1/4 bg-[radial-gradient(closest-side,--theme(--color-coral/15%),--theme(--color-coral/8%)_35%,transparent)]" />
         </div>
 
         <Constellation morph={morph} active={active} reducedMotion={reduce} />
