@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Fatimah Akanbi · Portfolio
 
-## Getting Started
+Personal site for Fatimah Akanbi, Frontend & Mobile Engineer.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Three.js / React Three Fiber · Motion · Lenis
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build (all pages are static)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Where things live
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+| What | File |
+| --- | --- |
+| Name, links, stats, stack, experience, testimonials | `src/lib/site.ts` |
+| Projects and case-study content | `src/lib/projects.ts` |
+| Project screenshots (1440×900) | `public/work/` |
+| Résumé PDF | `public/Fatimah-Akanbi-CV.pdf` |
+| 3D hero (custom GLSL particle system) | `src/components/three/Constellation.tsx` |
+| Page sections | `src/components/sections/` |
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+To add a project, add an entry to `projects` in `src/lib/projects.ts` (set `featured: true` to put it in the stacked showcase), and drop a screenshot into `public/work/`. Its case study page at `/work/<slug>` is generated automatically.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## Motion and accessibility
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- With `prefers-reduced-motion`, smooth scroll, autoplaying animation and tilt effects are turned off. The 3D scene still responds to scrolling, but stops animating on its own.
+- The WebGL canvas only renders while the hero is on screen. Phones get fewer particles.
+- There's a skip link, visible focus rings and screen-reader labels on icon-only links and external links.
